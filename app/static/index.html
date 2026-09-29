@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>小事板 · 现代软件开发实验室</title><link rel="stylesheet" href="/style.css"><script defer src="/app.js"></script></head>
+<body><main><header><p class="eyebrow">BUILD · CHECK · LEARN</p><h1>把想法，变成完成的小事。</h1><p>你的第一个现代软件开发项目。从一件小事开始，慢慢把它做好。</p></header>
+<p id="message" role="status" aria-live="polite"></p>
+<section aria-labelledby="tasks-heading"><h2 id="tasks-heading">我的小事板</h2>
+<form id="task-form"><label for="title">下一件想完成的事</label><div class="row"><input id="title" name="title" required maxlength="120" placeholder="例如：读完第一课"><button>添加</button></div></form>
+<p id="empty">还没有任务。给自己一个小小的起点。</p><ul id="tasks"></ul></section>
+<section aria-labelledby="note-heading"><h2 id="note-heading">把笔记拆成行动</h2><p>每行用「- 」「TODO:」或「待办：」开头。预览后逐条添加。</p>
+<form id="note-form"><label for="note">随手笔记</label><textarea id="note" rows="5" maxlength="4000" placeholder="- 读完第一课&#10;待办：试着运行测试"></textarea><button>提取预览</button></form><ul id="preview"></ul></section>
+<footer>本地单用户教学应用 · 提取引擎：确定性规则 · 数据保存在本机</footer></main></body></html>
