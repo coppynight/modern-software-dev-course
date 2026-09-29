@@ -48,4 +48,4 @@ Windows 用对应的 `.venv-mcp/Scripts/python.exe`。让客户端发现 `course
 | course_list_tasks | status=all/open/done；limit 为 1–50 整数 | 有限任务列表 | 无 |
 | course_task_stats | 无 | total、done、open | 无 |
 
-下一步按第 3 课接自己的只读数据，再接有权使用的外部 API。明确超时、空结果、错误和速率限制。不要给这个查询工具增加任意 shell 或任意文件路径能力。
+下一步按 [选学 S03](../../optional/03-context-mcp.md)接自己的只读数据，再接有权使用的外部 API。明确超时、空结果、错误和速率限制。不要给这个查询工具增加任意 shell 或任意文件路径能力。

@@ -1,67 +1,28 @@
-# 学习指南与环境准备
+# 5 分钟准备
 
-## 开始前你只需要这些
+[课程首页](../README.md) · [开始主线 1](../lessons/01-spec.md)
 
-一台能运行 Python 的电脑、浏览器、文本编辑器、每周两三个不被打断的时段。主线不需要显卡，不需要安装 Node、Conda、Poetry 或数据库服务。浏览器聊天助手、IDE 助手、终端 Agent 可以任选，也可以先不接模型。
+## 选一个项目和一款助手
 
-先做三个动作自测：看懂 `if` 的两个分支；给函数传入字符串并打印结果；找到一条异常信息的最后一行。做不到就先完成预备课，卡住是补基础的信号。
+使用熟悉的小项目，或附带的「小事板」。准备一款可用的聊天/编码助手：能直接读写仓库更方便；只有聊天工具也可以由你执行命令、回传必要结果。记录真实调用与执行，不把离线模拟当作 AI 实践。
 
-## 安装与确认
+主线默认你能读懂函数、运行项目、查看 diff 并保存修改。不熟悉时，按需进入 [编程与运行基础](../optional/00-foundations.md) 或 [环境与 Git 补课](../optional/setup-git.md)，无需先学完所有选学。
 
-从 [Python 官网](https://www.python.org/downloads/) 安装 Python 3.12；Windows 安装时启用命令行启动器与 PATH 选项。Mac/Linux 终端输入 `python3 --version`，Windows PowerShell 输入 `py -3.12 --version`。Linux 若系统已有其他版本，可使用发行版支持的安装方式，不要覆盖系统 Python。
+## 使用「小事板」时
 
-主线只用标准库，无须执行 `pip install`。可选 MCP 实验另有独立环境，不能把其依赖混进主线。项目命令都从**仓库根目录**执行，那里能同时看到 `README.md`、`app` 和 `tools`。
-
-| 动作 | macOS / Linux | Windows PowerShell |
-| --- | --- | --- |
-| 检查位置 | `pwd` | `Get-Location` |
-| 列出文件 | `ls` | `Get-ChildItem` |
-| 进入解压后的文件夹 | `cd modern-software-dev-course` | `cd modern-software-dev-course` |
-| 检查课程 | `python3 tools/check.py` | `py -3.12 tools/check.py` |
-| 启动应用 | `python3 -m app.server` | `py -3.12 -m app.server` |
-| 停止应用 | Ctrl+C | Ctrl+C |
-
-文件夹名以你实际解压的名字为准；GitHub ZIP 常带 `-main` 后缀。后文用 `python` 表示已确认的解释器；如果电脑只有 `python3` 或 `py -3.12`，替换命令的第一部分即可。
-
-## 30 分钟开箱
-
-1. 运行检查，观察 `OK` 和 `Course checks passed`。第一次不理解全部代码没有关系。
-2. 启动应用，打开终端显示的本地地址。
-3. 添加「完成预备课」，标记完成，改名；刷新页面，再重启服务确认数据仍在。
-4. 笔记区输入两行：`- 看第一课` 和 `今天心情不错`。预览应只有一个候选任务，且尚未保存。
-5. 逐条添加候选任务。检查 `data/tasks.db` 已出现；它是本地数据库，不提交到 Git。
-6. 复制 [周报](../templates/weekly-report.md) 到自己的笔记中，写下版本、命令、观察结果。
-
-## Git 和 GitHub 的最短路线
-
-Git 是本地修改历史，GitHub 是存放仓库与协作的服务。下载 ZIP 可以学习；需要 PR 时再安装 [Git](https://git-scm.com/downloads)。学习仓库可从课程仓库 Fork 到自己账号，再克隆你的 Fork。
+在仓库根目录执行，示例验证基线为 Python 3.12，无第三方运行依赖：
 
 ```bash
-git status
-git switch -c week01/prompt-experiment
-git diff
-git add lessons/01-prompting.md
-git commit -m "docs: record my first prompt experiment"
+python3 tools/check.py
+python3 -m app.server
 ```
 
-上面的 `git add` 是演示路径；实际提交你改过的文件。不要把示例周报写进共享讲义，建议在自己的 Fork 新建 `learning-log/week01.md`。首次提交若要求作者身份，配置自己的姓名和邮箱；需要保护邮箱时使用 GitHub 提供的 noreply 地址。
+Windows 用 `py -3.12`；虚拟环境内也可用 `python`。看到 `Course checks passed` 后启动服务，打开 <http://127.0.0.1:8000>，创建一条任务并刷新，确认仍在。按 Ctrl+C 停止。
 
-提交前用 `git diff --cached` 看清要上传什么，然后 `git push -u origin week01/prompt-experiment`。到自己 Fork 页面创建 PR，base 选择自己 Fork 的主分支。无需向上游课程仓库提交个人作业。
+入口：`app/domain.py` 是业务规则，`app/store.py` 是存储，`app/server.py` 是接口，`app/static/` 是页面，`tests/` 是测试。需要时查 [API 文档](api.md)，报错时查 [排错表](troubleshooting.md)。
 
-## 固定一周的节奏
+## 只选一个变化
 
-30 分钟回顾与概念 → 45 分钟跟做 → 90–150 分钟练习 → 30–45 分钟测试和写周报 → 15 分钟复盘。若超时，保住必做目标，跳过进阶。遇到环境问题连续 30 分钟没进展，就带命令、完整报错、系统版本求助；不要只说「不能运行」。
+推荐任务：增加「全部 / 未完成 / 已完成」筛选。也可选择自己项目中一个同等大小、可在几小时内完成的功能。
 
-每周保留三个证据：一个能运行的行为、一条真实失败及其处理、一段你自己写的解释。完成按钮点了多少次、模型输出了多少行，都不等于学会。
-
-## 工具替代原则
-
-| 需要的能力 | 最低配置 | 可选升级 | 受限时怎么做 |
-| --- | --- | --- | --- |
-| 讨论需求与解释代码 | 任意可用聊天助手 | 能读取仓库的编码助手 | 用讲义样例与同学互评 |
-| 执行与验证 | 系统终端 + Python | IDE 集成终端 | 完全相同的命令手动执行 |
-| 版本与评审 | Git + 本地 diff | GitHub PR | 导出 diff 并写评审记录 |
-| 模型实验 | 手工保存真实回答 | 本地模型或 API | 用规则基线练评测，不把结果称为模型效果 |
-| MCP | 契约 + 离线工具调用 | 官方 SDK + 支持 MCP 的客户端 | 交基础作业，真实集成单独标为未完成 |
-
-AI 工具的可用地区、登录方式、费用和套餐会变化，以使用时的官方说明为准。不要为完成基础线购买指定产品。每次模型实验记下工具、模型标识（若可见）、日期与设置；不捏造未显示的信息。
+复制 [任务卡](../templates/task-card.md)，接下来 5 个单元持续完善它。自有项目使用自己的启动与测试命令，完成标准保持一致。
