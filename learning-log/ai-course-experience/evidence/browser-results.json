@@ -1,0 +1,93 @@
+[
+  {
+    "case": "one filter",
+    "passed": true,
+    "detail": null
+  },
+  {
+    "case": "all 3",
+    "passed": true,
+    "detail": null
+  },
+  {
+    "case": "open 2",
+    "passed": true,
+    "detail": null
+  },
+  {
+    "case": "filter failure rolls back",
+    "passed": true,
+    "detail": null
+  },
+  {
+    "case": "filter failure explains retry",
+    "passed": true,
+    "detail": "任务列表加载失败，已保留上次成功的筛选结果。请确认本地服务运行后重试。Failed to fetch"
+  },
+  {
+    "case": "done 1",
+    "passed": true,
+    "detail": null
+  },
+  {
+    "case": "mutation removes from current filter",
+    "passed": true,
+    "detail": null
+  },
+  {
+    "case": "filtered empty visible",
+    "passed": true,
+    "detail": "没有已完成任务。完成一项任务后再来看看。"
+  },
+  {
+    "case": "switch does not delete",
+    "passed": true,
+    "detail": null
+  },
+  {
+    "case": "xss text only",
+    "passed": true,
+    "detail": null
+  },
+  {
+    "case": "400 status=invalid",
+    "passed": true,
+    "detail": {
+      "error": "status 须为 all、open 或 done，且只能提供一次"
+    }
+  },
+  {
+    "case": "400 status=",
+    "passed": true,
+    "detail": {
+      "error": "status 须为 all、open 或 done，且只能提供一次"
+    }
+  },
+  {
+    "case": "400 status=all&status=open",
+    "passed": true,
+    "detail": {
+      "error": "status 须为 all、open 或 done，且只能提供一次"
+    }
+  },
+  {
+    "case": "keyboard changes filter",
+    "passed": true,
+    "detail": "open"
+  },
+  {
+    "case": "narrow no overflow",
+    "passed": true,
+    "detail": null
+  },
+  {
+    "case": "offline retained",
+    "passed": true,
+    "detail": "Failed to fetch"
+  },
+  {
+    "case": "restart preserves and retry adds",
+    "passed": true,
+    "detail": null
+  }
+]

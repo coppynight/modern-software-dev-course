@@ -1,0 +1,31 @@
+起始项目19项测试
+Ran 19 tests in 0.627s
+OK
+Course checks passed (tests, Python syntax, JSON, local link targets).
+
+新增测试红灯21项中1失败
+Ran 21 tests in 0.687s
+FAILED (failures=1)
+Course checks failed
+
+练习接口绿灯21项
+Ran 21 tests in 0.733s
+OK
+Course checks passed (tests, Python syntax, JSON, local link targets).
+
+练习页面接线后21项
+Ran 21 tests in 0.779s
+OK
+Course checks passed (tests, Python syntax, JSON, local link targets).
+
+干净练习21项
+Ran 21 tests in 0.804s
+OK
+Course checks passed (tests, Python syntax, JSON, local link targets).
+exit_code=0
+
+起始独立HTTP验收22项
+17/22 checks passed
+
+练习独立HTTP验收22项
+22/22 checks passed

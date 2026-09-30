@@ -1,0 +1,14 @@
+{
+  "trigger": "open loaded; abort next done GET; select done",
+  "filter": "open",
+  "rows": 3,
+  "checked": false,
+  "error": "任务列表加载失败，已保留上次成功的筛选结果。请确认本地服务运行后重试。Failed to fetch",
+  "same_rows": true,
+  "db_done": [],
+  "db_open_count": 3,
+  "rollback_passed": true,
+  "old_success_ignored": true,
+  "old_failure_ignored": true,
+  "db_unchanged": true
+}

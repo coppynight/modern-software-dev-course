@@ -1,0 +1,10 @@
+{
+  "trigger": "open loaded; abort next done GET; select done",
+  "filter": "done",
+  "rows": 2,
+  "checked": false,
+  "error": "Failed to fetch",
+  "same_rows": true,
+  "db_done": [],
+  "db_open_count": 2
+}
