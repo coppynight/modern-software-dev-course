@@ -1,0 +1,9 @@
+补丁可应用: exit=0
+隔离应用: exit=0
+练习单元与静态检查: exit=0
+Course checks passed (tests, Python syntax, JSON, local link targets).
+Ran 21 tests in 0.785s
+OK
+独立HTTP验收: exit=0
+22/22 checks passed
+临时练习检查完成；starter未修改。

@@ -1,0 +1,165 @@
+diff --git a/app/server.py b/app/server.py
+index a6d4565..ee09233 100644
+--- a/app/server.py
++++ b/app/server.py
+@@ -7,7 +7,7 @@ import time
+ import uuid
+ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+ from pathlib import Path
+-from urllib.parse import urlsplit
++from urllib.parse import parse_qs, urlsplit
+ 
+ from app.domain import extract_tasks
+ from app.store import Store
+@@ -80,7 +80,10 @@ def handler_for(store):
+                 if self.command == "GET" and path == "/health":
+                     return self.respond(200, {"ok": True})
+                 if self.command == "GET" and path == "/api/tasks":
+-                    return self.respond(200, store.list())
++                    values = parse_qs(urlsplit(self.path).query, keep_blank_values=True).get("status", ["all"])
++                    if len(values) != 1 or values[0] not in {"all", "open", "done"}:
++                        raise APIError(400, "status 须为 all、open 或 done，且只能提供一次")
++                    return self.respond(200, store.list(values[0]))
+                 if self.command == "POST" and path == "/api/tasks":
+                     data = self.body()
+                     if set(data) != {"title"}:
+diff --git a/app/static/app.js b/app/static/app.js
+index 8ed2fb3..124be6c 100644
+--- a/app/static/app.js
++++ b/app/static/app.js
+@@ -19,8 +19,23 @@ function button(label, action) {
+   }));
+   return node;
+ }
++let refreshVersion = 0;
++let displayedStatus = 'all';
+ async function refresh() {
+-  const tasks = await api('/api/tasks');
++  const version = ++refreshVersion;
++  const status = $('status-filter').value;
++  let tasks;
++  try { tasks = await api(`/api/tasks?status=${encodeURIComponent(status)}`); }
++  catch (error) {
++    if (version !== refreshVersion) return;
++    $('status-filter').value = displayedStatus;
++    throw new Error(`任务列表加载失败，已保留上次成功的筛选结果。请确认本地服务运行后重试。${error.message}`);
++  }
++  if (version !== refreshVersion) return;
++  displayedStatus = status;
++  $('empty').textContent = {all: '还没有任务。给自己一个小小的起点。',
++    open: '没有未完成任务。可以切换筛选或添加任务。',
++    done: '没有已完成任务。完成一项任务后再来看看。'}[status];
+   $('tasks').replaceChildren(); $('empty').hidden = tasks.length > 0;
+   for (const task of tasks) {
+     const row = document.createElement('li'); row.classList.toggle('done', task.done);
+@@ -66,4 +81,5 @@ $('note-form').addEventListener('submit', (event) => {
+     } finally { submit.disabled = false; }
+   });
+ });
++$('status-filter').addEventListener('change', () => safely(refresh));
+ safely(refresh);
+diff --git a/app/static/index.html b/app/static/index.html
+index 012b931..dcd5250 100644
+--- a/app/static/index.html
++++ b/app/static/index.html
+@@ -5,6 +5,7 @@
+ <p id="message" role="status" aria-live="polite"></p>
+ <section aria-labelledby="tasks-heading"><h2 id="tasks-heading">我的小事板</h2>
+ <form id="task-form"><label for="title">下一件想完成的事</label><div class="row"><input id="title" name="title" required maxlength="120" placeholder="例如：读完第一课"><button>添加</button></div></form>
++<label for="status-filter">任务筛选</label><select id="status-filter"><option value="all">全部</option><option value="open">未完成</option><option value="done">已完成</option></select>
+ <p id="empty">还没有任务。给自己一个小小的起点。</p><ul id="tasks"></ul></section>
+ <section aria-labelledby="note-heading"><h2 id="note-heading">把笔记拆成行动</h2><p>每行用「- 」「TODO:」或「待办：」开头。预览后逐条添加。</p>
+ <form id="note-form"><label for="note">随手笔记</label><textarea id="note" rows="5" maxlength="4000" placeholder="- 读完第一课&#10;待办：试着运行测试"></textarea><button>提取预览</button></form><ul id="preview"></ul></section>
+diff --git a/app/store.py b/app/store.py
+index b7cd5e4..d4da97a 100644
+--- a/app/store.py
++++ b/app/store.py
+@@ -31,9 +31,15 @@ class Store:
+     def as_task(row):
+         return {"id": row["id"], "title": row["title"], "done": bool(row["done"])}
+ 
+-    def list(self):
++    def list(self, status="all"):
++        if status not in {"all", "open", "done"}:
++            raise ValueError("status 须为 all、open 或 done")
+         with self.connection() as db:
+-            return [self.as_task(r) for r in db.execute("SELECT * FROM tasks ORDER BY id")]
++            if status == "all":
++                rows = db.execute("SELECT * FROM tasks ORDER BY id")
++            else:
++                rows = db.execute("SELECT * FROM tasks WHERE done=? ORDER BY id", (int(status == "done"),))
++            return [self.as_task(r) for r in rows]
+ 
+     def add(self, title):
+         title = clean_title(title)
+diff --git a/docs/api.md b/docs/api.md
+index b7ebdad..2110263 100644
+--- a/docs/api.md
++++ b/docs/api.md
+@@ -1,11 +1,11 @@
+ # 小事板 API 与项目导览
+ 
+-起始版本，仅本机单用户。JSON 使用 UTF-8，响应包含 `X-Request-ID`。默认绑定 `127.0.0.1:8000`。
++当前版本，仅本机单用户。JSON 使用 UTF-8，响应包含 `X-Request-ID`。默认绑定 `127.0.0.1:8000`。
+ 
+ | 方法 | 路径 | 输入 | 成功 | 常见失败 |
+ | --- | --- | --- | --- | --- |
+ | GET | `/health` | 无 | 200，`{"ok":true}` | 只检查进程响应，不检查数据库 |
+-| GET | `/api/tasks` | 无 | 200，按 id 顺序的任务数组 | 500，存储故障 |
++| GET | `/api/tasks` | 可选查询参数 `status=all/open/done` | 200，按 id 升序的任务数组 | 400，status 无效、为空或重复；500，存储故障 |
+ | POST | `/api/tasks` | `{"title":"读书"}` | 201，包含 id/title/done | 400，标题不合法或多余字段 |
+ | PATCH | `/api/tasks/1` | title、done 至少一个 | 200，更新后任务 | 400，字段/类型错误；404，不存在 |
+ | DELETE | `/api/tasks/1` | 无 | 200，`{"deleted":true}` | 404，不存在 |
+@@ -13,7 +13,9 @@
+ 
+ 标题去首尾空白后 1–120 字符；done 只能为 JSON 布尔值，字符串 `"false"` 不接受。笔记最多 4000 字符；提取预览不写数据库，候选需用户逐条确认。当前规则识别 `- `、`* `、`TODO:`、`待办：`，按原顺序去重，不理解任意自然语言。
+ 
+-POST/PATCH 须为 `application/json` 对象，请求体最多 20000 字节。415=内容类型错误；413=体积超限或空体；403=Host/Origin 不符合本机访问约束；404=未知路径/记录。未知方法可能由标准库返回 501。GET 查询参数目前未定义且不会自动实现筛选。
++POST/PATCH 须为 `application/json` 对象，请求体最多 20000 字节。415=内容类型错误；413=体积超限或空体；403=Host/Origin 不符合本机访问约束；404=未知路径/记录。未知方法可能由标准库返回 501。
++
++`GET /api/tasks` 缺省或 `status=all` 返回全部任务；`status=open` 仅返回 `done=false`，`status=done` 仅返回 `done=true`。筛选为只读查询，各结果保持 id 升序；无匹配时返回空数组 `[]`。提供 status 时必须恰好一次且值为小写 all、open 或 done；空值、其他值、重复值（即使相同）返回 400 和 JSON error。其他查询参数当前被忽略。
+ 
+ ## 从哪里修改
+ 
+diff --git a/tests/test_app.py b/tests/test_app.py
+index 8a8d6b7..898e9de 100644
+--- a/tests/test_app.py
++++ b/tests/test_app.py
+@@ -93,6 +93,37 @@ class HTTPTests(unittest.TestCase):
+             self.assertEqual(status, 200)
+             self.assertIn('X-Request-ID', dict(headers))
+ 
++    def test_status_filter_contract_and_no_mutation(self):
++        ids = []
++        for title in ('first open', 'middle done', 'last open'):
++            ids.append(json.loads(self.request('POST', '/api/tasks', {'title': title})[2])['id'])
++        try:
++            self.request('PATCH', f'/api/tasks/{ids[1]}', {'done': True})
++            before = self.request('GET', '/api/tasks')[2]
++            self.assertEqual(self.request('GET', '/api/tasks?status=all')[2], before)
++            for value, done in (('open', False), ('done', True)):
++                status, _, body = self.request('GET', '/api/tasks?status=' + value)
++                self.assertEqual(status, 200)
++                tasks = json.loads(body)
++                self.assertEqual(tasks, [t for t in json.loads(before) if t['done'] is done])
++            for query in ('status=', 'status', 'status=invalid', 'status=OPEN',
++                          'status=all&status=open', 'status=all&status=all',
++                          'status=%27%20OR%201%3D1--'):
++                status, _, body = self.request('GET', '/api/tasks?' + query)
++                self.assertEqual(status, 400, query)
++                self.assertIn('status', json.loads(body)['error'])
++            self.assertEqual(self.request('GET', '/api/tasks')[2], before)
++        finally:
++            for task_id in ids:
++                self.request('DELETE', f'/api/tasks/{task_id}')
++
++    def test_status_filter_empty_results(self):
++        # Every HTTP test removes its fixtures; verify both predicates on an empty DB.
++        for value in ('all', 'open', 'done'):
++            status, _, body = self.request('GET', '/api/tasks?status=' + value)
++            self.assertEqual(status, 200)
++            self.assertEqual(json.loads(body), [])
++
+     def test_crud_over_http(self):
+         status, _, body = self.request('POST', '/api/tasks', {'title': '测试 HTTP'})
+         self.assertEqual(status, 201); task_id = json.loads(body)['id']

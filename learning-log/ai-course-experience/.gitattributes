@@ -1,0 +1,2 @@
+# Unified diff 的空白上下文行必须保留前导空格。
+filter-exercise.patch -whitespace
